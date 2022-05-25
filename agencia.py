@@ -58,8 +58,9 @@ while True:
                     event_cliente, values_cliente = v_datos_cliente.read()
                     if event_cliente == 'Cancelar' or event_cliente == sg.WINDOW_CLOSED:
                         break
-                    else: 
-                        print(values_cliente)
+                    elif event_cliente == 'Ingresar': 
+                        for llave, valor in values_cliente.items():
+                            print(f"{llave}: {valor}")
                 v_datos_cliente.close()
         v_menu_insercion.close()
 v_principal.close()
