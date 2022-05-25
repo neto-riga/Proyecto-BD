@@ -55,7 +55,7 @@ while True:
                         break
                     elif event_insercion == 'Ingresar': 
                         ### HACER CONSULTA AQUÍ
-                        sg.popup_auto_close("Cliente añadido con éxito")
+                        sg.popup_auto_close("Añadido con éxito")
                 v_datos_cliente.close()
             elif event2  == 'CARRO':
                 layout_carro = [
@@ -67,50 +67,88 @@ while True:
                     [sg.Text('Marca', size=(20, 1)), sg.Input(key='-MARCA-')],
                     [sg.Button('Ingresar'), sg.Button('Cancelar')]
                 ]
-                v_datos_carro = sg.Window('Inserción Cliente', layout_carro)
+                v_datos_carro = sg.Window('Inserción Carro', layout_carro)
                 while True:
                     event_insercion, values_insercion = v_datos_carro.read()
                     if event_insercion == 'Cancelar' or event_insercion == sg.WINDOW_CLOSED:
                         break
                     elif event_insercion == 'Ingresar': 
                         ### HACER CONSULTA AQUÍ
-                        sg.popup_auto_close("Cliente añadido con éxito")
+                        sg.popup_auto_close("Añadido con éxito")
                 v_datos_carro.close()
             elif event2 == 'COMPRA':
                 rfc_cliente = pd.read_sql_query('''SELECT RFC FROM CLIENTE''', conn)
+                mat_carro = pd.read_sql_query("""SELECT matricula FROM CARRO""", conn)
 
-                layout_cliente = [
+                layout_compra = [
                     [sg.Text('Ingrese los valores que desee añadir', font=(sg.DEFAULT_FONT, 15))],
-                    [sg.Text('Fecha de Compra', size=(20, 1)), sg.Input(key='-FECHA_COMPRA-')],
+                    [sg.Text('Fechas en formato (aaaa-mm-dd)')],
+                    [sg.Text("Fecha de Compra", size=(20, 1)), sg.Input(key='-FECHA_COMPRA-')],
                     [sg.Text('Forma de Pago', size=(20, 1)), sg.Input(key='-PAGO-')],
-                    [sg.Text('RFC Cliente', size=(20, 1)), sg.Listbox(rfc_cliente.values.tolist(), key='-RFC_CLIENTE-', size=(15, 2))],
-                    [sg.Text('Teléfono', size=(20, 1)), sg.Input(key='-TEL-')],
+                    [sg.Text('RFC Cliente', size=(20, 1)),
+                    sg.Listbox(rfc_cliente.values.tolist(), key='-RFC_CLIENTE-', size=(15, 2))],
+                    [sg.Text('Matrícula del carro', size=(20, 1)), 
+                    sg.Listbox(mat_carro.values.tolist(), key='-MATRICULA_CARRO-', size=(15, 2))],
                     [sg.Button('Ingresar'), sg.Button('Cancelar')]
                 ]
-                v_datos_cliente = sg.Window('Inserción Cliente', layout_cliente)
+                v_datos_compra = sg.Window('Inserción Compra', layout_compra)
                 while True:
-                    event_insercion, values_insercion = v_datos_cliente.read()
+                    event_insercion, values_insercion = v_datos_compra.read()
                     if event_insercion == 'Cancelar' or event_insercion == sg.WINDOW_CLOSED:
                         break
                     elif event_insercion == 'Ingresar':
                         for llave, val in values_insercion.items():
                             print(f"{llave}  {val}")
                         ### HACER CONSULTA AQUÍ
-                        sg.popup_auto_close("Cliente añadido con éxito")
-                v_datos_cliente.close()
+                        sg.popup_auto_close("Añadido con éxito")
+                v_datos_compra.close()
+            elif event2 == 'MECANICO':
+                layout_mecanico = [
+                    [sg.Text('Ingrese los valores que desee añadir', font=(sg.DEFAULT_FONT, 15))],
+                    [sg.Text('Nombre completo', size=(20, 1)), sg.Input(key='-NOMBRE-')],
+                    [sg.Text('RFC', size=(20, 1)), sg.Input(key='-RFC-')],
+                    [sg.Text('Turno', size=(20, 1)), sg.Input(key='-TURNO-')],
+                    [sg.Text('Teléfono', size=(20, 1)), sg.Input(key='-TEL-')],
+                    [sg.Button('Ingresar'), sg.Button('Cancelar')]
+                ]
+                v_datos_mecanico = sg.Window('Inserción Mecánico', layout_mecanico)
+                while True:
+                    event_insercion, values_insercion = v_datos_mecanico.read()
+                    if event_insercion == 'Cancelar' or event_insercion == sg.WINDOW_CLOSED:
+                        break
+                    elif event_insercion == 'Ingresar': 
+                        ### HACER CONSULTA AQUÍ
+                        sg.popup_auto_close("Añadido con éxito")
+                v_datos_mecanico.close()
+            elif event2 == 'REPARACION':
+                rfc_cliente = pd.read_sql_query('''SELECT RFC FROM CLIENTE''', conn)
+                rfc_mecanico = pd.read_sql_query('''SELECT RFC FROM MECANICO''', conn)
+                mat_carro = pd.read_sql_query("""SELECT matricula FROM CARRO""", conn)
+
+                layout_reparacion = [
+                    [sg.Text('Ingrese los valores que desee añadir', font=(sg.DEFAULT_FONT, 15))],
+                    [sg.Text('Fechas en formato (aaaa-mm-dd)')],
+                    [sg.Text("Fecha de ingreso", size=(20, 1)), sg.Input(key='-FECHA_INGRESO-')],
+                    [sg.Text("Fecha de entrega", size=(20, 1)), sg.Input(key='-FECHA_ENTREGA-')],
+                    [sg.Text('Costo', size=(20, 1)), sg.Input(key='-COSTO-')],
+                    [sg.Text('RFC cliente', size=(20, 1)),
+                    sg.Listbox(rfc_cliente.values.tolist(), key='-RFC_CLIENTE-', size=(15, 2))],
+                    [sg.Text('RFC mecánico', size=(20, 1)),
+                    sg.Listbox(rfc_mecanico.values.tolist(), key='-RFC_MECANICO-', size=(15, 2))],
+                    [sg.Text('Matrícula del carro', size=(20, 1)), 
+                    sg.Listbox(mat_carro.values.tolist(), key='-MATRICULA_CARRO-', size=(15, 2))],
+                    [sg.Button('Ingresar'), sg.Button('Cancelar')]
+                ]
+                v_datos_reparacion = sg.Window('Inserción Compra', layout_reparacion)
+                while True:
+                    event_insercion, values_insercion = v_datos_reparacion.read()
+                    if event_insercion == 'Cancelar' or event_insercion == sg.WINDOW_CLOSED:
+                        break
+                    elif event_insercion == 'Ingresar':
+                        for llave, val in values_insercion.items():
+                            print(f"{llave}  {val}")
+                        ### HACER CONSULTA AQUÍ
+                        sg.popup_auto_close("Añadido con éxito")
+                v_datos_reparacion.close()
         v_menu_insercion.close()
 v_principal.close()
-
-# %%
-# sg.theme("DarkBlue3")
-# headings = Q1.columns.to_list()
-# layout1 = [
-#     [sg.Table(values = Q1.values.tolist(), headings = headings,
-#     # Set column widths for empty record of table
-#     auto_size_columns=True,
-#     #col_widths=list(map(lambda x:len(x)+1, headings)))
-#     )]
-
-#     ]
-# sg.Window(title='Hellow bitches!', layout=layout1).read()
-# %%
