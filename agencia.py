@@ -157,7 +157,7 @@ while True:
         v_visualizacion = sg.Window("Visualización de Datos", layout_visualizacion)
         while True:
             event_visual, values_visual = v_visualizacion.read()
-            if event_visual == 'Regresar' or sg.WINDOW_CLOSED:
+            if event_visual in ('Regresar', sg.WIN_CLOSED):
                 break
             elif event_visual in ['CLIENTE', 'CARRO', 'COMPRA', 'MECANICO', 'REPARACION']:
                 query = pd.read_sql_query(f'''SELECT * FROM {event_visual}''', conn)
@@ -170,7 +170,7 @@ while True:
                 v_tablas = sg.Window(f"Tabla de {event_visual}", layout_tablas)
                 while True:
                     event_tabla, vlaues_tabla = v_tablas.read()
-                    if event_tabla == "Regresar" or sg.WINDOW_CLOSED:
+                    if event_tabla in ("Regresar", sg.WIN_CLOSED):
                         break
                 v_tablas.close()
         v_visualizacion.close()
