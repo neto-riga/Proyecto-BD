@@ -77,8 +77,8 @@ while True:
                         sg.popup_auto_close("Añadido con éxito")
                 v_datos_carro.close()
             elif event2 == 'COMPRA':
-                rfc_cliente = pd.read_sql_query('''SELECT RFC FROM CLIENTE''', conn)
-                mat_carro = pd.read_sql_query("""SELECT matricula FROM CARRO""", conn)
+                rfc_cliente = pd.read_sql_query('''SELECT RFC FROM CLIENTE ORDER BY RFC''', conn)
+                mat_carro = pd.read_sql_query("""SELECT matricula FROM CARRO ORDER BY matricula""", conn)
 
                 layout_compra = [
                     [sg.Text('Ingrese los valores que desee añadir', font=(sg.DEFAULT_FONT, 15))],
@@ -121,9 +121,9 @@ while True:
                         sg.popup_auto_close("Añadido con éxito")
                 v_datos_mecanico.close()
             elif event2 == 'REPARACION':
-                rfc_cliente = pd.read_sql_query('''SELECT RFC FROM CLIENTE''', conn)
-                rfc_mecanico = pd.read_sql_query('''SELECT RFC FROM MECANICO''', conn)
-                mat_carro = pd.read_sql_query("""SELECT matricula FROM CARRO""", conn)
+                rfc_cliente = pd.read_sql_query('''SELECT RFC FROM CLIENTE ORDER BY RFC''', conn)
+                rfc_mecanico = pd.read_sql_query('''SELECT RFC FROM MECANICO ORDER BY RFC''', conn)
+                mat_carro = pd.read_sql_query("""SELECT matricula FROM CARRO ORDER BY matricula""", conn)
 
                 layout_reparacion = [
                     [sg.Text('Ingrese los valores que desee añadir', font=(sg.DEFAULT_FONT, 15))],
