@@ -151,4 +151,31 @@ while True:
                         sg.popup_auto_close("Añadido con éxito")
                 v_datos_reparacion.close()
         v_menu_insercion.close()
+    elif event == 'Visualización':
+        layout_visualizacion = [
+            [sg.Text('Seleccione la tabla a la cual visualizará')],
+            [sg.Button('CLIENTE'), sg.Button('CARRO'), sg.Button('COMPRA'),
+            sg.Button('MECANICO'), sg.Button('REPARACION')],
+            [sg.Button('Regresar')]
+        ]
+        v_visualizacion = sg.Window("Visualización de Datos", layout_visualizacion)
+        while True:
+            event_visual, values_visual = v_visualizacion.read()
+            if event_visual == 'Regresar' or sg.WINDOW_CLOSED:
+                break
+            elif event_visual in ['CLIENTE', 'CARRO', 'COMPRA', 'MECANICO', 'REPARACION']:
+                query = pd.read_sql_query(f'''SELECT * FROM {event_visual}''', conn)
+                values = query.values.tolist()
+                headings = query.columns.to_list()
+                layout_tablas = [
+                    [sg.Table(values = values, headings=headings)],
+                    [sg.Button("Regresar")]
+                ]
+                v_tablas = sg.Window(f"Tabla de {event_visual}", layout_tablas)
+                while True:
+                    event_tabla, vlaues_tabla = v_tablas.read()
+                    if event_tabla == "Regresar" or sg.WINDOW_CLOSED:
+                        break
+                v_tablas.close()
+        v_visualizacion.close()
 v_principal.close()
