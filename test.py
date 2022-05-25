@@ -45,7 +45,23 @@ while True:
             if event2 == 'Regresar' or event2 == sg.WINDOW_CLOSED:
                 break
             elif event2 == 'CLIENTE':
-                pass
+                layout_cliente = [
+                    [sg.Text('Ingrese los valores que desee añadir', font=(sg.DEFAULT_FONT, 15))],
+                    [sg.Text('Nombre completo', size=(20, 1)), sg.Input(key='-NOMBRE-')],
+                    [sg.Text('RFC', size=(20, 1)), sg.Input(key='-RFC-')],
+                    [sg.Text('Direccion', size=(20, 1)), sg.Input(key='-DIR-')],
+                    [sg.Text('Teléfono', size=(20, 1)), sg.Input(key='-TEL-')],
+                    [sg.Button('Ingresar'), sg.Button('Cancelar')]
+                ]
+                v_datos_cliente = sg.Window('Inserción Cliente', layout_cliente)
+                while True:
+                    event_cliente, values_cliente = v_datos_cliente.read()
+                    if event_cliente == 'Cancelar' or event_cliente == sg.WINDOW_CLOSED:
+                        break
+                    else: 
+                        print(values_cliente)
+                v_datos_cliente.close()
+        v_menu_insercion.close()
 v_principal.close()
 
 # %%
