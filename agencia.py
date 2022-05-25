@@ -12,10 +12,6 @@ DATABASE_CONNECTION = f"mssql://@{SERVER_NAME}/{DATABASE_NAME}?driver={DRIVER_NA
 engine = create_engine(DATABASE_CONNECTION)
 conn = engine.connect()
 
-# # %%
-# Q1 = pd.read_sql_query('''SELECT * FROM CLIENTE''', conn)
-# print(Q1.head())
-
 # %%
 layout = [
     [sg.Button('Inserción'), sg.Button('Visualización')],
