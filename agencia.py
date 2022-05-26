@@ -2,6 +2,7 @@
 from sqlalchemy import create_engine
 import pandas as pd
 import PySimpleGUI as sg
+import pyodbc
 import os
 # %%
 DRIVER_NAME = 'SQL SERVER'
@@ -12,6 +13,13 @@ DATABASE_CONNECTION = f"mssql://@{SERVER_NAME}/{DATABASE_NAME}?driver={DRIVER_NA
 engine = create_engine(DATABASE_CONNECTION)
 conn = engine.connect()
 
+connection_string = f"""
+    DRIVER={{{DRIVER_NAME}}};
+    SERVER={SERVER_NAME};
+    DATABASE={DATABASE_NAME};
+    Trust_Connection=yes;
+"""
+con_odbc = pyodbc.connect(connection_string)
 # %%
 layout = [
     [sg.Button('Inserción'), sg.Button('Visualización'),
@@ -224,11 +232,10 @@ while True:
                             q3 = pd.read_sql_query(f"""SELECT {q_pk.values.tolist()[0][0]} FROM {event_act}""", conn)
                         vals = q2.values[:,0].tolist()
                         val_pk = q3.values[:,0].tolist()
-                        print(tuple(zip(val_pk, vals)))
                         layout_cambio = [
                             [sg.Text("Realice el cambio deseado", font=(sg.DEFAULT_FONT, 15))],
                             [sg.Text(f"Se muestra la clave {q_pk.values.tolist()[0][0]} junto con los valores a cambiar de {values_col['-VALOR-'][0]}")],
-                            [sg.Listbox(tuple(zip(val_pk, vals)), size=(60, 3))],
+                            [sg.Listbox(tuple(zip(val_pk, vals)), size=(60, 3), key="-CAMBIO-")],
                             [sg.Text("Ingrese el nuevo valor"), sg.Input(key='-VAL-')],
                             [sg.Button("Aceptar"), sg.Button("Regresar")]
                         ]
@@ -237,6 +244,20 @@ while True:
                             event_cambio, values_cambio = v_cambio.read()
                             if event_cambio in ("Regresar", sg.WINDOW_CLOSED):
                                 break
+                            elif event_cambio == "Aceptar":
+                                print(f"""
+                                UPDATE {event_act}
+                                SET {values_col['-VALOR-'][0]} = {values_cambio["-VAL-"]}
+                                WHERE {q_pk.values.tolist()[0][0]} = {values_cambio["-CAMBIO-"][0][0]}
+                                """)
+                                cursor = con_odbc.cursor()
+                                cursor.execute(f"""
+                                UPDATE {event_act}
+                                SET {values_col['-VALOR-'][0]} = {values_cambio["-VAL-"]}
+                                WHERE {q_pk.values.tolist()[0][0]} = '{values_cambio["-CAMBIO-"][0][0]}'
+                                """)
+                                con_odbc.commit()
+                                cursor.close()
                         v_cambio.close()
                 v_col.close()
         v_act.close()
