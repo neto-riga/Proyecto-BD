@@ -223,11 +223,12 @@ while True:
                         else:
                             q3 = pd.read_sql_query(f"""SELECT {q_pk.values.tolist()[0][0]} FROM {event_act}""", conn)
                         vals = q2.values[:,0].tolist()
-                        val_pk = q3.values.tolist()
+                        val_pk = q3.values[:,0].tolist()
+                        print(tuple(zip(val_pk, vals)))
                         layout_cambio = [
                             [sg.Text("Realice el cambio deseado", font=(sg.DEFAULT_FONT, 15))],
                             [sg.Text(f"Se muestra la clave {q_pk.values.tolist()[0][0]} junto con los valores a cambiar de {values_col['-VALOR-'][0]}")],
-                            [sg.Listbox(list(zip(val_pk, vals)), size=(60, 3))],
+                            [sg.Listbox(tuple(zip(val_pk, vals)), size=(60, 3))],
                             [sg.Text("Ingrese el nuevo valor"), sg.Input(key='-VAL-')],
                             [sg.Button("Aceptar"), sg.Button("Regresar")]
                         ]
