@@ -202,14 +202,41 @@ while True:
                     event_col, values_col = v_col.read()
                     if event_col in ("Regresar", sg.WINDOW_CLOSED):
                         break
-                    elif event_col == "Seleccionar" and values_col["-VALOR-"] in columnas:
-                        q2 = pd.read_sql_query(f"""SELECT {values_col['-VALOR-']} FROM {values_act}""", conn)
-                        vals = q2.values.tolist()
+                    elif event_col == "Seleccionar" and values_col["-VALOR-"][0] in columnas:
+                        q_pk = pd.read_sql_query(f"""
+                            SELECT column_name as PRIMARYKEYCOLUMN
+                            FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS TC 
+
+                            INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KU
+                                ON TC.CONSTRAINT_TYPE = 'PRIMARY KEY' 
+                                AND TC.CONSTRAINT_NAME = KU.CONSTRAINT_NAME 
+                                AND KU.table_name='{event_act}'
+
+                            ORDER BY 
+                                KU.TABLE_NAME
+                                ,KU.ORDINAL_POSITION
+                            ;
+                        """, conn)
+                        q2 = pd.read_sql_query(f"""SELECT {values_col['-VALOR-'][0]} FROM {event_act}""", conn)
+                        if q_pk.values.tolist()[0][0] == values_col['-VALOR-'][0]:
+                            q3 = q2.copy()
+                        else:
+                            q3 = pd.read_sql_query(f"""SELECT {q_pk.values.tolist()[0][0]} FROM {event_act}""", conn)
+                        vals = q2.values[:,0].tolist()
+                        val_pk = q3.values.tolist()
                         layout_cambio = [
-                            [sg.Text("Realice el cambio deseado")],
-                            [sg.Listbox(vals, size=(80, 2))],
-                            [sg.Text("Ingrese el nuevo valor"), sg.Input()]
+                            [sg.Text("Realice el cambio deseado", font=(sg.DEFAULT_FONT, 15))],
+                            [sg.Text(f"Se muestra la clave {q_pk.values.tolist()[0][0]} junto con los valores a cambiar de {values_col['-VALOR-'][0]}")],
+                            [sg.Listbox(list(zip(val_pk, vals)), size=(60, 3))],
+                            [sg.Text("Ingrese el nuevo valor"), sg.Input(key='-VAL-')],
+                            [sg.Button("Aceptar"), sg.Button("Regresar")]
                         ]
+                        v_cambio = sg.Window("Inserción de datos", layout_cambio)
+                        while True:
+                            event_cambio, values_cambio = v_cambio.read()
+                            if event_cambio in ("Regresar", sg.WINDOW_CLOSED):
+                                break
+                        v_cambio.close()
                 v_col.close()
         v_act.close()
     elif event == 'Eliminación':
