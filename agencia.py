@@ -14,7 +14,8 @@ conn = engine.connect()
 
 # %%
 layout = [
-    [sg.Button('Inserción'), sg.Button('Visualización')],
+    [sg.Button('Inserción'), sg.Button('Visualización'),
+    sg.Button('Actualización'), sg.Button('Eliminación')],
     [sg.Button('Cerrar')]
 ]
 
@@ -50,6 +51,8 @@ while True:
                     if event_insercion == 'Cancelar' or event_insercion == sg.WINDOW_CLOSED:
                         break
                     elif event_insercion == 'Ingresar': 
+                        for key, val in values_insercion.items():
+                            print(f"{key} {val}")
                         ### HACER CONSULTA AQUÍ
                         sg.popup_auto_close("Añadido con éxito")
                 v_datos_cliente.close()
@@ -174,4 +177,53 @@ while True:
                         break
                 v_tablas.close()
         v_visualizacion.close()
+    elif event == 'Actualización':
+        layout_act = [
+            [sg.Text('Seleccione la tabla a la cual se actualizarán valores')],
+            [sg.Button('CLIENTE'), sg.Button('CARRO'), sg.Button('COMPRA'),
+            sg.Button('MECANICO'), sg.Button('REPARACION')],
+            [sg.Button('Regresar')]
+        ]
+        v_act = sg.Window("Actualización de datos", layout_act)
+        while True:
+            event_act, values_act = v_act.read()
+            if event_act in ("Regresar", sg.WINDOW_CLOSED):
+                break
+            elif event_act in ['CLIENTE', 'CARRO', 'COMPRA', 'MECANICO', 'REPARACION']:
+                q = pd.read_sql_query(f"""SELECT TOP 1 * FROM {event_act}""", conn)
+                columnas = q.columns.to_list()
+                layout_col = [
+                    [sg.Text("Seleccione el valor a cambiar")],
+                    [sg.Listbox(columnas, key='-VALOR-'), sg.Button("Seleccionar")],
+                    [sg.Button('Regresar')]
+                ]
+                v_col = sg.Window("Selecciona la columna", layout_col)
+                while True:
+                    event_col, values_col = v_col.read()
+                    if event_col in ("Regresar", sg.WINDOW_CLOSED):
+                        break
+                    elif event_col == "Seleccionar" and values_col["-VALOR-"] in columnas:
+                        q2 = pd.read_sql_query(f"""SELECT {values_col['-VALOR-']} FROM {values_act}""", conn)
+                        vals = q2.values.tolist()
+                        layout_cambio = [
+                            [sg.Text("Realice el cambio deseado")],
+                            [sg.Listbox(vals, size=(80, 2))],
+                            [sg.Text("Ingrese el nuevo valor"), sg.Input()]
+                        ]
+                v_col.close()
+        v_act.close()
+    elif event == 'Eliminación':
+        layout_elim = [
+            [sg.Text('Seleccione la tabla a la cual se eliminarán valores')],
+            [sg.Button('CLIENTE'), sg.Button('CARRO'), sg.Button('COMPRA'),
+            sg.Button('MECANICO'), sg.Button('REPARACION')],
+            [sg.Button('Regresar')]
+        ]
+        v_elim = sg.Window("Eliminación de datos", layout_elim)
+        while True:
+            event_elim, values_elim = v_elim.read()
+            if event_tabla in ("Regresar", sg.WIN_CLOSED):
+                break
+
+        v_elim.close()
 v_principal.close()
