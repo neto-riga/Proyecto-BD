@@ -3,7 +3,6 @@ from sqlalchemy import create_engine
 import pandas as pd
 import PySimpleGUI as sg
 import pyodbc
-import os
 # %%
 DRIVER_NAME = 'SQL SERVER'
 SERVER_NAME = 'DESKTOP-EKPLE5V'
@@ -47,10 +46,10 @@ while True:
             elif event2 == 'CLIENTE':
                 layout_cliente = [
                     [sg.Text('Ingrese los valores que desee añadir', font=(sg.DEFAULT_FONT, 15))],
-                    [sg.Text('Nombre completo', size=(20, 1)), sg.Input(key='-NOMBRE-')],
-                    [sg.Text('RFC', size=(20, 1)), sg.Input(key='-RFC-')],
-                    [sg.Text('Direccion', size=(20, 1)), sg.Input(key='-DIR-')],
-                    [sg.Text('Teléfono', size=(20, 1)), sg.Input(key='-TEL-')],
+                    [sg.Text('RFC', size=(20, 1)), sg.Input(key='RFC')],
+                    [sg.Text('Nombre completo', size=(20, 1)), sg.Input(key='nombre')],
+                    [sg.Text('Direccion', size=(20, 1)), sg.Input(key='direccion')],
+                    [sg.Text('Teléfono', size=(20, 1)), sg.Input(key='telefono')],
                     [sg.Button('Ingresar'), sg.Button('Cancelar')]
                 ]
                 v_datos_cliente = sg.Window('Inserción Cliente', layout_cliente)
@@ -59,19 +58,21 @@ while True:
                     if event_insercion == 'Cancelar' or event_insercion == sg.WINDOW_CLOSED:
                         break
                     elif event_insercion == 'Ingresar': 
-                        for key, val in values_insercion.items():
-                            print(f"{key} {val}")
-                        ### HACER CONSULTA AQUÍ
+                        df1 = pd.DataFrame(values_insercion,index=[0])
+                        df1 = df1.set_index(df1.iloc[:,0])
+                        nom = df1.columns.values[0]
+                        df1 = df1.drop([nom],axis=1)
+                        df1.to_sql("CLIENTE",con=engine,if_exists="append")
                         sg.popup_auto_close("Añadido con éxito")
                 v_datos_cliente.close()
             elif event2  == 'CARRO':
                 layout_carro = [
                     [sg.Text('Ingrese los valores que desee añadir', font=(sg.DEFAULT_FONT, 15))],
-                    [sg.Text('Matrícula', size=(20, 1)), sg.Input(key='-MATRICULA-')],
-                    [sg.Text('Modelo', size=(20, 1)), sg.Input(key='-MODELO-')],
-                    [sg.Text('Color', size=(20, 1)), sg.Input(key='-COLOR-')],
-                    [sg.Text('Precio', size=(20, 1)), sg.Input(key='-PRECIO-')],
-                    [sg.Text('Marca', size=(20, 1)), sg.Input(key='-MARCA-')],
+                    [sg.Text('Matrícula', size=(20, 1)), sg.Input(key='matricula')],
+                    [sg.Text('Modelo', size=(20, 1)), sg.Input(key='modelo')],
+                    [sg.Text('Color', size=(20, 1)), sg.Input(key='color')],
+                    [sg.Text('Precio', size=(20, 1)), sg.Input(key='precio')],
+                    [sg.Text('Marca', size=(20, 1)), sg.Input(key='marca')],
                     [sg.Button('Ingresar'), sg.Button('Cancelar')]
                 ]
                 v_datos_carro = sg.Window('Inserción Carro', layout_carro)
@@ -80,7 +81,11 @@ while True:
                     if event_insercion == 'Cancelar' or event_insercion == sg.WINDOW_CLOSED:
                         break
                     elif event_insercion == 'Ingresar': 
-                        ### HACER CONSULTA AQUÍ
+                        df1 = pd.DataFrame(values_insercion,index=[0])
+                        df1 = df1.set_index(df1.iloc[:,0])
+                        nom = df1.columns.values[0]
+                        df1 = df1.drop([nom],axis=1)
+                        df1.to_sql("CARRO",con=engine,if_exists="append")
                         sg.popup_auto_close("Añadido con éxito")
                 v_datos_carro.close()
             elif event2 == 'COMPRA':
@@ -90,12 +95,12 @@ while True:
                 layout_compra = [
                     [sg.Text('Ingrese los valores que desee añadir', font=(sg.DEFAULT_FONT, 15))],
                     [sg.Text('Fechas en formato (aaaa-mm-dd)')],
-                    [sg.Text("Fecha de Compra", size=(20, 1)), sg.Input(key='-FECHA_COMPRA-')],
-                    [sg.Text('Forma de Pago', size=(20, 1)), sg.Input(key='-PAGO-')],
+                    [sg.Text("Fecha de Compra", size=(20, 1)), sg.Input(key='fechaDeCompra')],
+                    [sg.Text('Forma de Pago', size=(20, 1)), sg.Input(key='formaDePago')],
                     [sg.Text('RFC Cliente', size=(20, 1)),
-                    sg.Listbox(rfc_cliente.values.tolist(), key='-RFC_CLIENTE-', size=(15, 2))],
+                    sg.Listbox(rfc_cliente.values.tolist(), key='rfcCliente', size=(15, 2))],
                     [sg.Text('Matrícula del carro', size=(20, 1)), 
-                    sg.Listbox(mat_carro.values.tolist(), key='-MATRICULA_CARRO-', size=(15, 2))],
+                    sg.Listbox(mat_carro.values.tolist(), key='matriculaComprado', size=(15, 2))],
                     [sg.Button('Ingresar'), sg.Button('Cancelar')]
                 ]
                 v_datos_compra = sg.Window('Inserción Compra', layout_compra)
@@ -104,18 +109,22 @@ while True:
                     if event_insercion == 'Cancelar' or event_insercion == sg.WINDOW_CLOSED:
                         break
                     elif event_insercion == 'Ingresar':
-                        for llave, val in values_insercion.items():
-                            print(f"{llave}  {val}")
-                        ### HACER CONSULTA AQUÍ
+                        values_insercion['rfcCliente'] = values_insercion["rfcCliente"][0]
+                        values_insercion['matriculaComprado'] = values_insercion["matriculaComprado"][0]
+                        df1 = pd.DataFrame(values_insercion,index=[0])
+                        df1 = df1.set_index(df1.iloc[:,0])
+                        nom = df1.columns.values[0]
+                        df1 = df1.drop([nom],axis=1)
+                        df1.to_sql("COMPRA",con=engine,if_exists="append")
                         sg.popup_auto_close("Añadido con éxito")
                 v_datos_compra.close()
             elif event2 == 'MECANICO':
                 layout_mecanico = [
                     [sg.Text('Ingrese los valores que desee añadir', font=(sg.DEFAULT_FONT, 15))],
-                    [sg.Text('Nombre completo', size=(20, 1)), sg.Input(key='-NOMBRE-')],
-                    [sg.Text('RFC', size=(20, 1)), sg.Input(key='-RFC-')],
-                    [sg.Text('Turno', size=(20, 1)), sg.Input(key='-TURNO-')],
-                    [sg.Text('Teléfono', size=(20, 1)), sg.Input(key='-TEL-')],
+                    [sg.Text('Nombre completo', size=(20, 1)), sg.Input(key='nombre')],
+                    [sg.Text('RFC', size=(20, 1)), sg.Input(key='RFC')],
+                    [sg.Text('Turno', size=(20, 1)), sg.Input(key='turno')],
+                    [sg.Text('Teléfono', size=(20, 1)), sg.Input(key='telefono')],
                     [sg.Button('Ingresar'), sg.Button('Cancelar')]
                 ]
                 v_datos_mecanico = sg.Window('Inserción Mecánico', layout_mecanico)
@@ -124,7 +133,11 @@ while True:
                     if event_insercion == 'Cancelar' or event_insercion == sg.WINDOW_CLOSED:
                         break
                     elif event_insercion == 'Ingresar': 
-                        ### HACER CONSULTA AQUÍ
+                        df1 = pd.DataFrame(values_insercion,index=[0])
+                        df1 = df1.set_index(df1.iloc[:,0])
+                        nom = df1.columns.values[0]
+                        df1 = df1.drop([nom],axis=1)
+                        df1.to_sql("MECANICO",con=engine,if_exists="append")
                         sg.popup_auto_close("Añadido con éxito")
                 v_datos_mecanico.close()
             elif event2 == 'REPARACION':
@@ -135,15 +148,15 @@ while True:
                 layout_reparacion = [
                     [sg.Text('Ingrese los valores que desee añadir', font=(sg.DEFAULT_FONT, 15))],
                     [sg.Text('Fechas en formato (aaaa-mm-dd)')],
-                    [sg.Text("Fecha de ingreso", size=(20, 1)), sg.Input(key='-FECHA_INGRESO-')],
-                    [sg.Text("Fecha de entrega", size=(20, 1)), sg.Input(key='-FECHA_ENTREGA-')],
-                    [sg.Text('Costo', size=(20, 1)), sg.Input(key='-COSTO-')],
+                    [sg.Text("Fecha de ingreso", size=(20, 1)), sg.Input(key='fechaDeIngreso')],
+                    [sg.Text("Fecha de entrega", size=(20, 1)), sg.Input(key='fechaDeEntrega')],
+                    [sg.Text('Costo', size=(20, 1)), sg.Input(key='costo_reparacion')],
                     [sg.Text('RFC cliente', size=(20, 1)),
-                    sg.Listbox(rfc_cliente.values.tolist(), key='-RFC_CLIENTE-', size=(15, 2))],
+                    sg.Listbox(rfc_cliente.values.tolist(), key='rfcCliente', size=(15, 2))],
                     [sg.Text('RFC mecánico', size=(20, 1)),
-                    sg.Listbox(rfc_mecanico.values.tolist(), key='-RFC_MECANICO-', size=(15, 2))],
+                    sg.Listbox(rfc_mecanico.values.tolist(), key='rfc_mecanico', size=(15, 2))],
                     [sg.Text('Matrícula del carro', size=(20, 1)), 
-                    sg.Listbox(mat_carro.values.tolist(), key='-MATRICULA_CARRO-', size=(15, 2))],
+                    sg.Listbox(mat_carro.values.tolist(), key='matriculaReparado', size=(15, 2))],
                     [sg.Button('Ingresar'), sg.Button('Cancelar')]
                 ]
                 v_datos_reparacion = sg.Window('Inserción Compra', layout_reparacion)
@@ -152,9 +165,11 @@ while True:
                     if event_insercion == 'Cancelar' or event_insercion == sg.WINDOW_CLOSED:
                         break
                     elif event_insercion == 'Ingresar':
-                        for llave, val in values_insercion.items():
-                            print(f"{llave}  {val}")
-                        ### HACER CONSULTA AQUÍ
+                        df1 = pd.DataFrame(values_insercion,index=[0])
+                        df1 = df1.set_index(df1.iloc[:,0])
+                        nom = df1.columns.values[0]
+                        df1 = df1.drop([nom],axis=1)
+                        df1.to_sql("REPARACION",con=engine,if_exists="append")
                         sg.popup_auto_close("Añadido con éxito")
                 v_datos_reparacion.close()
         v_menu_insercion.close()
@@ -253,7 +268,7 @@ while True:
                                 cursor = con_odbc.cursor()
                                 cursor.execute(f"""
                                 UPDATE {event_act}
-                                SET {values_col['-VALOR-'][0]} = {values_cambio["-VAL-"]}
+                                SET {values_col['-VALOR-'][0]} = '{values_cambio["-VAL-"]}'
                                 WHERE {q_pk.values.tolist()[0][0]} = '{values_cambio["-CAMBIO-"][0][0]}'
                                 """)
                                 con_odbc.commit()
