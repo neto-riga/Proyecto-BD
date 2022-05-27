@@ -150,13 +150,13 @@ while True:
                     [sg.Text('Fechas en formato (aaaa-mm-dd)')],
                     [sg.Text("Fecha de ingreso", size=(20, 1)), sg.Input(key='fechaDeIngreso')],
                     [sg.Text("Fecha de entrega", size=(20, 1)), sg.Input(key='fechaDeEntrega')],
-                    [sg.Text('Costo', size=(20, 1)), sg.Input(key='costo_reparacion')],
                     [sg.Text('RFC cliente', size=(20, 1)),
                     sg.Listbox(rfc_cliente.values.tolist(), key='rfcCliente', size=(15, 2))],
+                    [sg.Text('Matrícula del carro', size=(20, 1)),
+                    sg.Listbox(mat_carro.values.tolist(), key='matriculaReparado', size=(15, 2))], 
                     [sg.Text('RFC mecánico', size=(20, 1)),
                     sg.Listbox(rfc_mecanico.values.tolist(), key='rfc_mecanico', size=(15, 2))],
-                    [sg.Text('Matrícula del carro', size=(20, 1)), 
-                    sg.Listbox(mat_carro.values.tolist(), key='matriculaReparado', size=(15, 2))],
+                    [sg.Text('Costo', size=(20, 1)), sg.Input(key='costo_reparacion')],
                     [sg.Button('Ingresar'), sg.Button('Cancelar')]
                 ]
                 v_datos_reparacion = sg.Window('Inserción Compra', layout_reparacion)
@@ -165,6 +165,9 @@ while True:
                     if event_insercion == 'Cancelar' or event_insercion == sg.WINDOW_CLOSED:
                         break
                     elif event_insercion == 'Ingresar':
+                        values_insercion['rfcCliente'] = values_insercion["rfcCliente"][0]
+                        values_insercion['matriculaReparado'] = values_insercion["matriculaReparado"][0]
+                        values_insercion['rfc_mecanico'] = values_insercion["rfc_mecanico"][0]
                         df1 = pd.DataFrame(values_insercion,index=[0])
                         df1 = df1.set_index(df1.iloc[:,0])
                         nom = df1.columns.values[0]
