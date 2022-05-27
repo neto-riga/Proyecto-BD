@@ -263,11 +263,6 @@ while True:
                             if event_cambio in ("Regresar", sg.WINDOW_CLOSED):
                                 break
                             elif event_cambio == "Aceptar":
-                                print(f"""
-                                UPDATE {event_act}
-                                SET {values_col['-VALOR-'][0]} = {values_cambio["-VAL-"]}
-                                WHERE {q_pk.values.tolist()[0][0]} = {values_cambio["-CAMBIO-"][0][0]}
-                                """)
                                 cursor = con_odbc.cursor()
                                 cursor.execute(f"""
                                 UPDATE {event_act}
@@ -276,6 +271,7 @@ while True:
                                 """)
                                 con_odbc.commit()
                                 cursor.close()
+                                sg.popup_auto_close("Cambio realizado con éxito")
                         v_cambio.close()
                 v_col.close()
         v_act.close()
@@ -289,8 +285,46 @@ while True:
         v_elim = sg.Window("Eliminación de datos", layout_elim)
         while True:
             event_elim, values_elim = v_elim.read()
-            if event_tabla in ("Regresar", sg.WIN_CLOSED):
+            if event_elim in ("Regresar", sg.WIN_CLOSED):
                 break
+            elif event_elim in ['CLIENTE', 'CARRO', 'COMPRA', 'MECANICO', 'REPARACION']:
+                q_pk = pd.read_sql_query(f"""
+                    SELECT column_name as PRIMARYKEYCOLUMN
+                    FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS TC 
 
+                    INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KU
+                        ON TC.CONSTRAINT_TYPE = 'PRIMARY KEY' 
+                        AND TC.CONSTRAINT_NAME = KU.CONSTRAINT_NAME 
+                        AND KU.table_name='{event_elim}'
+
+                    ORDER BY 
+                        KU.TABLE_NAME
+                        ,KU.ORDINAL_POSITION
+                    ;
+                """, conn)
+                pk = q_pk.values.tolist()[0][0]
+                q3 = pd.read_sql_query(f"""SELECT {pk} FROM {event_elim}""", conn)
+                val_pk = q3.values[:,0].tolist()
+                layout_valores = [
+                    [sg.Text("Seleccione el valor a eliminar", font=(sg.DEFAULT_FONT, 15))],
+                    [sg.Listbox(val_pk, key='-ELIM-')],
+                    [sg.Button("Eliminar"), sg.Button('Cancelar')]
+                ]
+                v_valores = sg.Window("Elección de valores", layout_valores)
+                while True:
+                    event_valores, values_valores = v_valores.read()
+                    if event_valores in ("Cancelar", sg.WINDOW_CLOSED):
+                        break
+                    elif event_valores == "Eliminar":
+                        cursor = con_odbc.cursor()
+                        cursor.execute(f"""
+                        DELETE FROM {event_elim}
+                        WHERE {pk} = '{values_valores["-ELIM-"][0]}';
+                        """)
+                        con_odbc.commit()
+                        cursor.close()
+                        sg.popup_auto_close("Eliminado exitosamente")
+                v_valores.close()
         v_elim.close()
 v_principal.close()
+# %%
